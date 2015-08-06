@@ -1,0 +1,29 @@
+# from cocos2d-x
+cocos2d
+CMakeLists.txt
+libmusic-core-lib iOS.a
+
+# ios
+xcuserdata
+*.perspectivev3
+*.pbxuser
+*.DS_Store
+.svn
+*.xcuserstate
+*.xcsettings
+Build
+
+# from cocoapods
+Pod*
+*.xcworkspace
+
+# android
+bin
+gen
+obj
+armeabi
+assets
+proguard
+
+# vs2012
+proj.win32
