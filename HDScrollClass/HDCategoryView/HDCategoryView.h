@@ -63,6 +63,7 @@
 
 - (CGRect)rectForColumnAtIndexPath:(HDIndexPath *)indexPath;
 
+- (void)selectColumnAtIndexPath:(HDIndexPath *)indexPath animated:(BOOL)animated;
 - (void)deselectColumnAtIndexPath:(HDIndexPath *)indexPath;
 
 @end

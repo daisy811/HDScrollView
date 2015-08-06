@@ -87,7 +87,9 @@
 
 - (void)layoutSelectedFlagViewWithAnimated:(BOOL)animated {
     if (self.selectedIndexPath) {
-        CGRect rect = [self rectForColumnAtIndexPath:self.selectedIndexPath];
+        HDCategoryCell *cell = [self cellForColumnAtIndexPath:self.selectedIndexPath];
+        cell.selected = YES;
+        CGRect rect = cell.frame;
         [UIView animateWithDuration:animated ? 0.5 : 0 animations:^{
             NSInteger height = [self heightForSelectedFlagAtIndexPath:self.selectedIndexPath];
             self.selectedFlagView.frame = CGRectMake(CGRectGetMinX(rect), CGRectGetHeight(rect) - height, CGRectGetWidth(rect), height);
@@ -122,7 +124,9 @@
             if (cellView && cellWidth > 0) {
                 [cellViewArray addObject:cellView];
                 [self.scrollView addSubview:cellView];
-                cellView.didSelectBlock = ^ (void) {
+                cellView.didSelectBlock = ^ (HDCategoryCell *cell) {
+                    [self resetCellStatus];
+                    cell.selected = YES;
                     self.selectedIndexPath = indexPath;
                     if ([self.delegate respondsToSelector:@selector(categoryView:didSelectColumnAtIndexPath:)]) {
                         [self.delegate categoryView:self didSelectColumnAtIndexPath:indexPath];
@@ -148,15 +152,42 @@
     [self.scrollView addSubview:self.selectedFlagView];
 }
 
+- (void)resetCellStatus {
+    [self.cellViewArray enumerateObjectsUsingBlock:^(NSArray *array, NSUInteger idx, BOOL *stop) {
+        [array enumerateObjectsUsingBlock:^(HDCategoryCell *cell, NSUInteger idx, BOOL *stop) {
+            cell.highlighted = NO;
+            cell.selected = NO;
+        }];
+    }];
+}
+
 - (HDCategoryCell *)cellForColumnAtIndexPath:(HDIndexPath *)indexPath {
-    NSMutableArray *array = self.cellViewArray[indexPath.section];
-    HDCategoryCell *cell = array[indexPath.column];
-    return cell;
+    if (self.cellViewArray.count > indexPath.section) {
+        NSMutableArray *array = self.cellViewArray[indexPath.section];
+        if (array.count > indexPath.column) {
+            HDCategoryCell *cell = array[indexPath.column];
+            return cell;
+        }
+    }
+    return nil;
 }
 
 - (CGRect)rectForColumnAtIndexPath:(HDIndexPath *)indexPath {
     HDCategoryCell *cell = [self cellForColumnAtIndexPath:indexPath];
     return cell.frame;
+}
+
+- (void)selectColumnAtIndexPath:(HDIndexPath *)indexPath animated:(BOOL)animated {
+    if (self.selectedIndexPath) {
+        HDCategoryCell *cell = [self cellForColumnAtIndexPath:self.selectedIndexPath];
+        cell.highlighted = NO;
+        cell.selected = NO;
+    }
+    HDCategoryCell *cell = [self cellForColumnAtIndexPath:indexPath];
+    cell.selected = YES;
+    self.selectedIndexPath = indexPath;
+    [self.scrollView scrollRectToVisible:cell.frame animated:YES];
+    [self layoutSelectedFlagViewWithAnimated:animated];
 }
 
 - (void)deselectColumnAtIndexPath:(HDIndexPath *)indexPath {

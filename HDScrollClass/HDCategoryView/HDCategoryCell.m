@@ -27,9 +27,8 @@
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
     self.highlighted = NO;
-    self.selected = YES;
     if (self.didSelectBlock) {
-        self.didSelectBlock();
+        self.didSelectBlock(self);
     }
 }
 

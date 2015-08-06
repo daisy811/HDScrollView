@@ -8,7 +8,9 @@
 
 #import <UIKit/UIKit.h>
 
-typedef void(^DidSelectBlock)(void);
+@class HDCategoryCell;
+
+typedef void(^DidSelectBlock)(HDCategoryCell *cell);
 
 @interface HDCategoryCell : UIView
 

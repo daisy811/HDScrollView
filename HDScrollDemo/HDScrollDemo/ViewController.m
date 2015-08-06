@@ -24,6 +24,7 @@
     self.categoryView = [[HDCategoryView alloc] initWithFrame:CGRectZero];
     self.categoryView.dataSource = self;
     self.categoryView.delegate = self;
+    self.categoryView.backgroundColor = [UIColor redColor];
 
     [self.view addSubview:self.categoryView];
 
@@ -32,21 +33,22 @@
     self.tableView = [[HDTableView alloc] initWithFrame:CGRectZero style:UITableViewStylePlain];
     self.tableView.delegate = self;
     self.tableView.dataSource = self;
-    self.tableView.backgroundColor = [UIColor redColor];
+    self.tableView.tableView.pagingEnabled = YES;
+    self.tableView.backgroundColor = [UIColor grayColor];
     [self.view addSubview:self.tableView];
 }
 
 - (void)viewDidLayoutSubviews {
     [super viewDidLayoutSubviews];
-    self.categoryView.frame = CGRectMake(10, 100, CGRectGetWidth(self.view.frame) - 20, 44);
+    self.categoryView.frame = CGRectMake(0, 20, CGRectGetWidth(self.view.frame), 44);
 
-    self.tableView.frame = CGRectMake(10, 300, self.view.frame.size.width - 20, 80);
+    self.tableView.frame = CGRectMake(0, CGRectGetMaxY(self.categoryView.frame), self.view.frame.size.width, CGRectGetHeight(self.view.frame) - CGRectGetMaxY(self.categoryView.frame));
 }
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
-    [self.tableView scrollToColumnAtIndexPath:[HDIndexPath indexPathForColumn:0 inSection:3] atScrollPosition:0 animated:YES];
-    [self.tableView selectColumnAtIndexPath:[HDIndexPath indexPathForColumn:0 inSection:3] animated:YES scrollPosition:0];
+//    [self.tableView scrollToColumnAtIndexPath:[HDIndexPath indexPathForColumn:0 inSection:3] atScrollPosition:0 animated:YES];
+//    [self.tableView selectColumnAtIndexPath:[HDIndexPath indexPathForColumn:0 inSection:3] animated:YES scrollPosition:0];
 }
 
 #pragma mark - HDCategoryViewDataSource
@@ -62,11 +64,10 @@
 - (HDCategoryCell *)categoryView:(HDCategoryView *)categoryView cellForColumnAtIndexPath:(HDIndexPath *)indexPath reuseableCell:(HDCategoryCell *)cell {
     if (cell == nil) {
         cell = [[HDCategoryCell alloc] initWithFrame:CGRectZero];
-        cell.backgroundColor = [[UIColor redColor] colorWithAlphaComponent:1.0 / (indexPath.column + 1)];
         cell.textLabel.textColor = [UIColor blueColor];
         cell.textLabel.highlightedTextColor = [UIColor greenColor];
     }
-    cell.textLabel.text = [NSString stringWithFormat:@"%@", [indexPath description]];
+    cell.textLabel.text = [NSString stringWithFormat:@"section：%@", [NSNumber numberWithInteger:indexPath.section]];
     return cell;
 }
 
@@ -74,7 +75,8 @@
 
 - (void)categoryView:(HDCategoryView *)categoryView didSelectColumnAtIndexPath:(HDIndexPath *)indexPath {
     NSLog(@"did select %@", [indexPath description]);
-    [categoryView deselectColumnAtIndexPath:indexPath];
+//    [categoryView deselectColumnAtIndexPath:indexPath];
+    [self.tableView scrollToColumnAtIndexPath:[HDIndexPath indexPathForColumn:indexPath.section inSection:0] atScrollPosition:0 animated:YES];
 }
 
 - (NSInteger)categoryView:(HDCategoryView *)categoryView heightForSelectedFlagAtIndexPath:(HDIndexPath *)indexPath {
@@ -82,7 +84,7 @@
 }
 
 - (NSInteger)categoryView:(HDCategoryView *)categoryView widthForColumnAtIndexPath:(HDIndexPath *)indexPath {
-    return 250;
+    return 100;
 }
 
 - (NSInteger)categoryView:(HDCategoryView *)categoryView widthForFooterInSection:(NSInteger)section {
@@ -102,12 +104,8 @@
 
 #pragma mark - HDTableViewDataSource
 
-- (NSInteger)numberOfSectionsInTableView:(HDTableView *)tableView {
-    return 10;
-}
-
 - (NSInteger)tableView:(HDTableView *)tableView numberOfColumnsInSection:(NSInteger)section {
-    return 1;
+    return 5;
 }
 
 - (HDTableCell *)tableView:(HDTableView *)tableView cellForColumnAtIndexPath:(HDIndexPath *)indexPath reuseableCell:(HDTableCell *)cell {
@@ -121,7 +119,7 @@
 //        cell.contentView = view;
     }
     cell.imageView.image = [UIImage imageNamed:@"icon"];
-    cell.textLabel.text = [NSString stringWithFormat:@"title - %li", indexPath.section];
+    cell.textLabel.text = [NSString stringWithFormat:@"title - %li", indexPath.column];
 //    UILabel *label = (UILabel *)cell.contentView;
 //    label.text = [NSString stringWithFormat:@"title - %li", indexPath.section];
 
@@ -130,39 +128,16 @@
 
 #pragma mark - HDTableViewDelegate
 
+- (void)tableView:(HDTableView *)tableView scrollToIndexPath:(HDIndexPath *)indexPath {
+    [self.categoryView selectColumnAtIndexPath:[HDIndexPath indexPathForColumn:0 inSection:indexPath.column] animated:YES];
+}
+
+- (NSInteger)tableView:(HDTableView *)tableView widthForColumnAtIndexPath:(HDIndexPath *)indexPath {
+    return CGRectGetWidth(self.tableView.frame);
+}
+
 - (void)tableView:(HDTableView *)tableView didSelectColumnAtIndexPath:(HDIndexPath *)indexPath {
     [tableView deselectColumnAtIndexPath:indexPath animated:YES];
-}
-
-//- (NSInteger)tableView:(HDTableView *)tableView widthForHeaderInSection:(NSInteger)section {
-//    return 5;
-//}
-
-- (NSInteger)tableView:(HDTableView *)tableView widthForFooterInSection:(NSInteger)section {
-    if (section != 9) {
-        return 5;
-    }
-    return 0;
-}
-
-- (NSInteger)tableView:(HDTableView *)tableView heightForSelectedFlagAtIndexPath:(HDIndexPath *)indexPath {
-    return 2;
-}
-
-//- (UIView *)tableView:(HDTableView *)tableView viewForHeaderInSection:(NSInteger)section reuseableHeader:(UIView *)header {
-//    if (header == nil) {
-//        header = [[UIView alloc] initWithFrame:CGRectZero];
-//        header.backgroundColor = [UIColor yellowColor];
-//    }
-//    return header;
-//}
-
-- (UIView *)tableView:(HDTableView *)tableView viewForFooterInSection:(NSInteger)section reuseableFooter:(UIView *)footer {
-    if (footer == nil) {
-        footer = [[UIView alloc] initWithFrame:CGRectZero];
-        footer.backgroundColor = [UIColor blueColor];
-    }
-    return footer;
 }
 
 @end
